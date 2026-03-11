@@ -1,6 +1,11 @@
 window.helloAI = function() {
     console.log("AI ready");
 }
+
+function hello() {
+    console.log("AI ready");
+}
+
 // Функция для рисования полоски здоровья
 window.drawHealthBar = function(ctx, x, y, healthPercent) {
     const barWidth = 200;

@@ -1,8 +1,5 @@
 let nameGroup = "Core Mechanics"
 
-
-
-
 window.helloCore = function() {
     hello();
     bye();
@@ -15,4 +12,4 @@ function hello(){
 function bye(){
     console.log("Bye from Core!");
 }
-
+hello()

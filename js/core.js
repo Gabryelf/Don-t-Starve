@@ -4,4 +4,5 @@ window.drawPlayerBody = function(ctx, x, y) {
     // Используй: fillStyle = 'yellow', beginPath, arc, fill
     // 👇 Твой код здесь
   console.log("Работает")
+
 }

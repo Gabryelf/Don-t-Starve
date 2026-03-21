@@ -1,35 +1,29 @@
-// Получаем canvas и контекст
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-// Игровой цикл
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+window.onload = function() {
+    let canvas = document.getElementById('gameCanvas');
+    let ctx = canvas.getContext('2d');
     
-    // Рисуем задний план (деревья)
-    drawTree(ctx, 200, 300);
-    drawTree(ctx, 500, 400);
+    UI.init(canvas, ctx);
+    Sound.load();
     
-    // Рисуем игрока
-    drawPlayer(ctx, 400, 300);
-    
-    requestAnimationFrame(gameLoop);
-    // Рисуем врагов
-    drawEnemy(ctx, 300, 200, 'spider');
-    drawEnemy(ctx, 600, 350, 'hound');
-    
-    // Рисуем эффекты
-    drawPickupEffect(ctx, 450, 250);
-    
-    // Рисуем интерфейс ПОВЕРХ всего
-    drawHungerHealth(ctx, 75, 60);
-    
-    requestAnimationFrame(gameLoop);
-}
-
-// Запускаем игру
-
-
-gameLoop();
-
-helloCore();
+    Assets.load(() => {
+        Core.init();
+        QA.log("Game ready!");
+        QA.log("Controls: LEFT CLICK to move | RIGHT CLICK to attack | E to gather | R to restart");
+        
+        let lastTime = 0;
+        
+        function gameLoop(currentTime) {
+            requestAnimationFrame(gameLoop);
+            
+            let delta = Math.min(0.033, (currentTime - lastTime) / 1000);
+            if(delta > 0.01 && lastTime !== 0) {
+                Core.update(delta);
+            }
+            lastTime = currentTime;
+            
+            UI.render(Core.getState());
+        }
+        
+        requestAnimationFrame(gameLoop);
+    });
+};

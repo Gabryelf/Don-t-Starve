@@ -1,25 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" href="favicon.ico">
-        <title>def</title>
-    </head>
-    <body>
-        <canvas id="gameCanvas" width="800" height="600" style="border:1px solid black; display: block; margin: 0 auto;"></canvas>
-        <img src="assets/images/placeholder.png" alt="placeholder" style="display:none;" id="testImage">
-        <audio id="testSound" src="assets/sounds/click.mp3" preload="auto"></audio>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don't Starve Mini</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a2a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+            box-shadow: 0 0 0 2px #8b5a2b;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-        <script src="js/core/core.js"></script>
-        <script src="js/core/ai.js"></script>
-        <script src="js/ui/ui.js"></script>
-        <script src="js/qa.js"></script>
-        <script src="js/assets.js"></script>
-        <script src="js/sound.js"></script>
-        <script src="js/main.js"></script>
-    </body>
+    <script src="js/config/config.js"></script>
+    <script src="js/state/state.js"></script>
+    <script src="js/ui/graphics/assets.js"></script>
+    <script src="js/audio/sound.js"></script>
+    <script src="js/core/ai.js"></script>
+    <script src="js/tests/qa.js"></script>
+    <script src="js/ui/ui.js"></script>
+    <script src="js/core/core.js"></script>
+    <script src="js/main.js"></script>
+</body>
 </html>
-
-

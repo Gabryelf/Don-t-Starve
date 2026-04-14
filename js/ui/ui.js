@@ -1,74 +1,137 @@
-// UI функции
+//--------------------------------------
+// Отрисовка панели игры, зодовья, голода, ресурсов, дня; рендер иконок и кнопок, полосок здоровья и голода 
+//--------------------------------------
+function helloUI() {
+    console.log("UI ready");
+}
+
+function helloUI() {
+    console.log("🎮 UI ready");
+}
+
+// Отрисовка панели интерфейса с иконками
 window.drawUIPanel = function(ctx, health, hunger, wood, day) {
+    // Фон панели
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, 800, 55);
+   
+GameRenderer.drawUIcon('heart', 10, 8, health);   // вместо ручного рисования сердца
+GameRenderer.drawUIcon('meat', 100, 8, hunger);   // вместо ручного рисования мяса
     
-    if(window.GameRenderer) {
-        GameRenderer.drawUIcon('heart', 10, 12, health);
-        GameRenderer.drawUIcon('meat', 100, 12, hunger);
+    // Здоровье с иконкой сердца
+    const heartImg = AssetLoader.getImage('heart');
+    if(heartImg && heartImg.complete) {
+        ctx.drawImage(heartImg, 15, 12, 28, 28);
+    } else {
+        ctx.fillStyle = "#ff4444";
+        ctx.fillRect(15, 12, 28, 28);
     }
-    
-    ctx.fillStyle = "#ffde9c";
+    ctx.fillStyle = "white";
     ctx.font = "bold 18px monospace";
+    ctx.fillText(Math.floor(health), 50, 35);
+    
+    // Голод с иконкой мяса
+    const meatImg = AssetLoader.getImage('meat');
+    if(meatImg && meatImg.complete) {
+        ctx.drawImage(meatImg, 105, 12, 28, 28);
+    } else {
+        ctx.fillStyle = "#ffaa44";
+        ctx.fillRect(105, 12, 28, 28);
+    }
+    ctx.fillText(Math.floor(hunger), 140, 35);
+    
+    // Древесина
+    ctx.fillStyle = "#ffde9c";
     ctx.fillText("🪵", 210, 35);
     ctx.fillText(wood, 235, 35);
     
+    // День
     ctx.fillStyle = "#ffaa66";
     ctx.fillText("🌞 Day " + day, 700, 35);
+
+    ctx.fillText(Math.floor(health), 50, 35);   // <-- Math.floor
+    ctx.fillText(Math.floor(hunger), 140, 35);  // <-- Math.floor
+    ctx.fillText(wood, 235, 35);                // <-- wood уже целое число
+    ctx.fillText("🌞 Day " + day, 700, 35);
+    
+    // Рисуем полоски здоровья и голода
+    window.drawHungerHealth(ctx, hunger, health);
 };
 
+// Отрисовка кнопок UI
 window.drawUIButtons = function(ctx) {
-    ctx.fillStyle = "#4a3a2a";
-    ctx.fillRect(20, 545, 90, 35);
-    ctx.fillRect(120, 545, 90, 35);
-    ctx.fillRect(690, 545, 90, 35);
+    const buttonImg = AssetLoader.getImage('button');
+    
+    // Кнопка GATHER
+    if(buttonImg && buttonImg.complete) {
+        ctx.drawImage(buttonImg, 20, 545, 90, 35);
+        ctx.drawImage(buttonImg, 120, 545, 90, 35);
+        ctx.drawImage(buttonImg, 690, 545, 90, 35);
+    } else {
+        ctx.fillStyle = "#4a3a2a";
+        ctx.fillRect(20, 545, 90, 35);
+        ctx.fillRect(120, 545, 90, 35);
+        ctx.fillRect(690, 545, 90, 35);
+    }
     
     ctx.fillStyle = "#ffde9c";
     ctx.font = "bold 14px monospace";
-    ctx.fillText("GATHER", 35, 568);
-    ctx.fillText("ATTACK", 142, 568);
-    ctx.fillText("RESTART", 700, 568);
+    ctx.fillText("GATHER", 45, 568);
+    ctx.fillText("ATTACK", 150, 568);
+    ctx.fillText("RESTART", 715, 568);
 };
 
-window.drawMinimap = function(ctx, camera) {
-    const minimapCanvas = document.getElementById('minimap');
-    if(!minimapCanvas) return;
+// Функция для рисования полоски здоровья
+window.drawHealthBar = function(ctx, x, y, healthPercent) {
+    const barWidth = 200;
+    const barHeight = 20;
+    const fillWidth = (healthPercent / 100) * barWidth;
     
-    const mCtx = minimapCanvas.getContext('2d');
-    const scaleX = 150 / GameConfig.WORLD_WIDTH;
-    const scaleY = 150 / GameConfig.WORLD_HEIGHT;
+    // TODO: Нарисовать красный прямоугольник шириной fillWidth
+    // TODO: Нарисовать чёрную обводку вокруг всей полоски
+    // 👇 Твой код здесь
+    ctx.fillStyle = 'red';
+    ctx.fillRect(x, y, fillWidth, barHeight);
     
-    mCtx.fillStyle = "#2d5a2c";
-    mCtx.fillRect(0, 0, 150, 150);
-    
-    mCtx.fillStyle = "#5d3a1a";
-    for(let tree of GameState.world.trees) {
-        mCtx.fillRect(tree.x * scaleX, tree.y * scaleY, 2, 2);
-    }
-    
-    mCtx.fillStyle = "#cc3366";
-    for(let berry of GameState.world.berries) {
-        mCtx.fillRect(berry.x * scaleX, berry.y * scaleY, 2, 2);
-    }
-    
-    mCtx.fillStyle = "#aa3333";
-    for(let enemy of GameState.enemies) {
-        mCtx.fillRect(enemy.x * scaleX, enemy.y * scaleY, 3, 3);
-    }
-    
-    mCtx.fillStyle = "#ffcc44";
-    mCtx.beginPath();
-    mCtx.arc(GameState.player.x * scaleX, GameState.player.y * scaleY, 4, 0, Math.PI * 2);
-    mCtx.fill();
-    
-    if(camera) {
-        const viewX = camera.x * scaleX;
-        const viewY = camera.y * scaleY;
-        const viewW = 800 * scaleX;
-        const viewH = 600 * scaleY;
-        mCtx.strokeStyle = "white";
-        mCtx.strokeRect(viewX, viewY, viewW, viewH);
-    }
-};
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(x, y, barWidth, barHeight);
+}
 
-console.log("🖼️ UI ready");
+// Функция для рисования полоски голода
+window.drawHungerBar = function(ctx, x, y, hungerPercent) {
+    const barWidth = 200;
+    const barHeight = 20;
+    const fillWidth = (hungerPercent / 100) * barWidth;
+    
+    // TODO: Нарисовать зелёный прямоугольник шириной fillWidth
+    // TODO: Нарисовать чёрную обводку вокруг всей полоски
+    // 👇 Твой код здесь
+    ctx.fillStyle = 'green';
+    ctx.fillRect(x, y, fillWidth, barHeight);
+    
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(x, y, barWidth, barHeight);
+}
+
+// Функция для подписей
+window.drawBarText = function(ctx, x, y, label, value) {
+    // TODO: Написать текст вида "HP: 75" справа от полоски
+    ctx.font = '14px Arial';
+    ctx.fillStyle = 'black';
+    ctx.fillText(`${label}: ${value}`, x + 210, y + 15);
+}
+
+// Общая функция для интерфейса
+window.drawHungerHealth = function(ctx, hunger, health) {
+    const startX = 10;
+    const startY = 10;
+    const barHeight = 20;
+    
+    // Рисуем здоровье
+    window.drawHealthBar(ctx, startX, startY, health);
+    window.drawBarText(ctx, startX, startY, 'HP', health);
+    
+    // Рисуем голод
+    window.drawHungerBar(ctx, startX, startY + barHeight + 5, hunger);
+    window.drawBarText(ctx, startX, startY + barHeight + 5, 'Hunger', hunger);
+}

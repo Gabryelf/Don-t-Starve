@@ -1,87 +1,100 @@
-//--------------------------------------
-// Звуковой движок
-//--------------------------------------
 class SoundManager {
     constructor() {
+        // Хранилище звуков
         this.sounds = new Map();
+        // Счетчики загрузки
         this.loadedCount = 0;
         this.totalSounds = 0;
+        // Колбэк завершения загрузки
         this.onComplete = null;
+        // Текущая фоновая музыка
         this.currentMusic = null;
     }
-    
+
     loadAll(soundsList, callback) {
         this.onComplete = callback;
         const entries = Object.entries(soundsList);
         this.totalSounds = entries.length;
         this.loadedCount = 0;
-        
-        for (const [name, path] of entries) {
+
+        if (this.totalSounds === 0) {
+            if (callback) callback();
+            return;
+        }
+
+        for (let [name, path] of entries) {
             this.loadSound(name, path);
         }
     }
-    
+
     loadSound(name, path) {
         const audio = new Audio();
-        audio.addEventListener('canplaythrough', () => {
-            this.loadedCount++;
-            console.log(`✅ Sound loaded: ${name} (${this.loadedCount}/${this.totalSounds})`);
-            if (this.loadedCount === this.totalSounds && this.onComplete) {
+        const self = this;
+
+        audio.addEventListener('canplaythrough', function () {
+            self.loadedCount++;
+            console.log(`✅ Sound loaded: ${name} (${self.loadedCount}/${self.totalSounds})`);
+
+            if (self.loadedCount === self.totalSounds && self.onComplete) {
                 console.log("🔊 All sounds ready!");
-                this.onComplete();
+                self.onComplete();
             }
         });
-        audio.onerror = () => {
+
+        audio.onerror = function () {
             console.error(`❌ Failed to load sound: ${name}`);
-            this.loadedCount++;
+            self.loadedCount++;
+            // Даже при ошибке считаем как загруженный, чтобы не зависнуть
+            if (self.loadedCount === self.totalSounds && self.onComplete) {
+                self.onComplete();
+            }
         };
+
         audio.src = path;
         audio.load();
         this.sounds.set(name, audio);
     }
-    
+
     play(name) {
         const sound = this.sounds.get(name);
         if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log("Audio error:", e));
+            sound.currentTime = 0;  // перематываем в начало
+            sound.play().catch(e => {
+                console.log(`Audio play error for "${name}":`, e);
+            });
         } else {
             console.warn(`⚠️ Sound not found: ${name}`);
         }
     }
-    
+
     playMusic(name, volume = 0.3) {
+        // Останавливаем текущую музыку
         if (this.currentMusic) {
             this.currentMusic.pause();
             this.currentMusic.currentTime = 0;
         }
-        
+
         const music = this.sounds.get(name);
         if (music) {
             music.loop = true;
             music.volume = volume;
-            music.play().catch(e => console.log("Music error:", e));
+            music.play().catch(e => {
+                console.log(`Music play error for "${name}":`, e);
+            });
             this.currentMusic = music;
         } else {
             console.warn(`⚠️ Music track not found: ${name}`);
         }
     }
-    
-    stopMusic(name) {
+
+    stopMusic() {
         if (this.currentMusic) {
             this.currentMusic.pause();
             this.currentMusic.currentTime = 0;
             this.currentMusic = null;
         }
     }
-    
-    setVolume(name, volume) {
-        const sound = this.sounds.get(name);
-        if (sound) {
-            sound.volume = Math.max(0, Math.min(1, volume));
-        }
-    }
 }
 
+// Глобальный экземпляр
 window.soundManager = new SoundManager();
-console.log("🔊 Sound Manager ready");

@@ -1,23 +1,24 @@
-//--------------------------------------
-// Состояние игры
-//--------------------------------------
 class GameState {
     constructor() {
         this.gameActive = true;
-        this.player = {
-            x: 1200, y: 900, hp: 100, hunger: 100, wood: 0,
-            targetX: null, targetY: null
-        };
-        this.world = { trees: [], berries: [] };
-        this.enemies = [];
-        this.day = 1;
-        this.dayTimer = 0;
-        this.spawnTimer = 0;
+            this.player = {
+                x: 1200, y: 900, hp: 100, hunger: 100, wood: 0,
+                targetX: null, targetY: null
+            };
+            this.world = { trees: [], berries: [] };
+            this.enemies = [];
+            this.day = 1;
+            this.dayTimer = 0;
+            this.spawnTimer = 0;
     }
-    
+        
     init() {
         this.generateWorld();
         this.reset();
+    }
+    
+    clampCoord(value, margin = 50) {
+        return Math.max(margin, Math.min(window.gameConfig.WORLD_WIDTH - margin, value)); 
     }
     
     generateWorld() {
@@ -61,10 +62,6 @@ class GameState {
         console.log(`🌍 World generated: ${this.world.trees.length} trees, ${this.world.berries.length} berries`);
     }
     
-    clampCoord(value, margin = 50) {
-        return Math.max(margin, Math.min(window.gameConfig.WORLD_WIDTH - margin, value));
-    }
-    
     reset() {
         this.gameActive = true;
         this.player = {
@@ -84,13 +81,13 @@ class GameState {
         
         for (let i = 0; i < 6; i++) {
             this.spawnEnemy();
-        }
+        } 
     }
     
     setPlayerTarget(screenX, screenY, cameraX, cameraY) {
         if (!this.gameActive) return;
         this.player.targetX = this.clampCoord(screenX + cameraX, 20);
-        this.player.targetY = this.clampCoord(screenY + cameraY, 20);
+        this.player.targetY = this.clampCoord(screenY + cameraY, 20);  
     }
     
     movePlayer(delta, speed) {
@@ -124,10 +121,11 @@ class GameState {
         
         const enemy = {
             id: Date.now() + Math.random(),
-            x, y,
+            x: x,
+            y: y,
             hp: window.gameBalance.ENEMY_BASE_HP + Math.floor(Math.random() * 20),
             maxHp: window.gameBalance.ENEMY_BASE_HP + Math.floor(Math.random() * 20),
-            type,
+            type: type,
             behavior: this.createBehavior(type, x, y)
         };
         
@@ -137,6 +135,72 @@ class GameState {
     
     createBehavior(type, x, y) {
         switch(type) {
+        case 'patrol':
+            return {
+                patrolPoints: [
+                    { x: x - 100 + Math.random() * 200, y: y - 100 + Math.random() * 200 },
+                    { x: x - 100 + Math.random() * 200, y: y - 100 + Math.random() * 200 },
+                    { x: x - 100 + Math.random() * 200, y: y - 100 + Math.random() * 200 }
+                ],
+                currentPatrolIndex: 0
+            };
+        case 'guard':
+            return { guardPoint: { x: x, y: y, radius: 80 } };
+        case 'wander':
+            return { wanderAngle: Math.random() * Math.PI * 2, wanderTimer: 0 };
+        default:
+            return {};
+        }   
+    }
+    
+    addWood(amount) {
+        this.player.wood += amount; 
+    }
+    
+    addHunger(amount) {
+        this.player.hunger = Math.min(100, this.player.hunger + amount);
+    }
+    
+    damagePlayer(amount) {
+        this.player.hp -= amount;
+        if (this.player.hp <= 0) {
+            this.gameActive = false;
+        }
+    }
+    
+    healPlayer(amount) {
+        this.player.hp = Math.min(100, this.player.hp + amount);
+    }
+    
+    nextDay() {
+        this.day++;
+        this.healPlayer(5);
+        this.addHunger(8);
+        console.log(`🌞 Day ${this.day}`);
+    }
+    
+    getTreesInRange(x, y, radius) {
+        return this.world.trees.filter(tree => 
+            Math.hypot(tree.x - x, tree.y - y) < radius && tree.wood > 0);
+    }
+    
+    getBerriesInRange(x, y, radius) {
+        return this.world.berries.filter(berry => 
+            Math.hypot(berry.x - x, berry.y - y) < radius && berry.count > 0);
+    }
+    
+    removeTree(tree) {
+        const index = this.world.trees.indexOf(tree);
+        if (index > -1) this.world.trees.splice(index, 1);
+    }
+    
+    removeBerry(berry) {
+        const index = this.world.berries.indexOf(berry);
+        if (index > -1) this.world.berries.splice(index, 1);
+    }
+
+    createEnemyBehavior(type, x, y) {
+         switch(type) {
             case 'patrol':
                 return {
                     patrolPoints: Array(3).fill().map(() => ({
@@ -152,40 +216,6 @@ class GameState {
             default: return {};
         }
     }
-    
-    addWood(amount) { this.player.wood += amount; }
-    addHunger(amount) { this.player.hunger = Math.min(100, this.player.hunger + amount); }
-    damagePlayer(amount) {
-        this.player.hp -= amount;
-        if (this.player.hp <= 0) this.gameActive = false;
-    }
-    healPlayer(amount) { this.player.hp = Math.min(100, this.player.hp + amount); }
-    
-    nextDay() {
-        this.day++;
-        this.healPlayer(5);
-        this.addHunger(8);
-        console.log(`🌞 Day ${this.day}`);
-    }
-    
-    getTreesInRange(x, y, radius) {
-        return this.world.trees.filter(t => Math.hypot(t.x - x, t.y - y) < radius && t.wood > 0);
-    }
-    
-    getBerriesInRange(x, y, radius) {
-        return this.world.berries.filter(b => Math.hypot(b.x - x, b.y - y) < radius && b.count > 0);
-    }
-    
-    removeTree(tree) {
-        const idx = this.world.trees.indexOf(tree);
-        if (idx > -1) this.world.trees.splice(idx, 1);
-    }
-    
-    removeBerry(berry) {
-        const idx = this.world.berries.indexOf(berry);
-        if (idx > -1) this.world.berries.splice(idx, 1);
-    }
 }
-
 window.gameState = new GameState();
 console.log("📊 Game State ready");

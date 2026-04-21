@@ -1,9 +1,8 @@
-// Визуальные эффекты
 class VisualEffects {
     constructor() {
         this.particles = [];
     }
-    
+   
     addPickup(x, y) {
         this.particles.push({ x, y, life: 0.5, type: 'pickup' });
     }
@@ -11,8 +10,7 @@ class VisualEffects {
     addHit(x, y) {
         this.particles.push({ x, y, life: 0.3, type: 'hit' });
     }
-    
-    update(delta) {
+       update(delta) {
         for (let i = this.particles.length-1; i >= 0; i--) {
             this.particles[i].life -= delta;
             if (this.particles[i].life <= 0) this.particles.splice(i,1);

@@ -1,4 +1,3 @@
-// Простая мини-карта
 class MiniMap {
     constructor(gameState, camera) {
         this.gameState = gameState;

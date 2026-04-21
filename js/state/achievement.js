@@ -9,8 +9,7 @@ class AchievementSystem {
         this.notification = null;
         this.notifTimer = 0;
     }
-    
-    addWood(amount) {
+     addWood(amount) {
         if (!this.achievements.wood.done) {
             this.achievements.wood.current += amount;
             if (this.achievements.wood.current >= 50) {
@@ -27,8 +26,7 @@ class AchievementSystem {
             }
         }
     }
-    
-    unlock(id) {
+      unlock(id) {
         const ach = this.achievements[id];
         ach.done = true;
         this.notification = `🏆 ${ach.name}! +20 HP`;
@@ -51,5 +49,34 @@ class AchievementSystem {
             ctx.font = "bold 14px monospace";
             ctx.fillText(this.notification, 220, 125);
         }
+    }
+
+    drawPanel(ctx) {
+        // Панель достижений (нажмите A для открытия)
+        if (!this.panelOpen) return;
+        
+        ctx.fillStyle = "rgba(0,0,0,0.9)";
+        ctx.fillRect(200, 100, 400, 250);
+        ctx.fillStyle = "#ffde9c";
+        ctx.font = "bold 18px monospace";
+        ctx.fillText("ACHIEVEMENTS", 320, 140);
+        
+        ctx.font = "14px monospace";
+        let y = 180;
+        for (let [id, ach] of Object.entries(this.achievements)) {
+            const status = ach.done ? "✓" : "○";
+            const color = ach.done ? "#4caf50" : "#888";
+            ctx.fillStyle = color;
+            ctx.fillText(`${status} ${ach.name} (${ach.current}/${ach.required})`, 230, y);
+            y += 30;
+        }
+        
+        ctx.fillStyle = "#888";
+        ctx.font = "10px monospace";
+        ctx.fillText("Press A to close", 340, 330);
+    }
+    
+    togglePanel() {
+        this.panelOpen = !this.panelOpen;
     }
 }

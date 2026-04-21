@@ -20,8 +20,8 @@ class GameBalance {
         this.BERRY_HUNGER_RESTORE = 6;
         
         // Мир
-        this.HUNGER_DRAIN_RATE = 0.18;
-        this.DAY_DURATION = 30;
+        this.HUNGER_DRAIN_RATE = 0.38;
+        this.DAY_DURATION = 100;
         this.ENEMY_SPAWN_DELAY = 12;
         this.MAX_ENEMIES = 12;
     }

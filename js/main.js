@@ -45,7 +45,6 @@ window.addEventListener('DOMContentLoaded', () => {
     
     const visualEffects = new VisualEffects();
     const dayNight = new DayNightSystem();
-    dayNight.initStars();
     const experience = new ExperienceSystem(window.gameState);
     const achievements = new AchievementSystem(window.gameState);
     const crafting = new CraftingSystem(window.gameState, coreGame);
@@ -144,6 +143,12 @@ window.addEventListener('DOMContentLoaded', () => {
             renderer.ctx.font = "14px monospace";
             renderer.ctx.fillText(coreGame.notificationMsg, 270, 525);
         }
+        // После отрисовки других UI элементов:
+        if (coreGame.gameState.achievements) {
+            coreGame.gameState.achievements.drawPanel(renderer.ctx);
+        }
+
+        
         
         requestAnimationFrame(animate);
     }
@@ -151,3 +156,13 @@ window.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(animate);
     console.log("✅ Game initialized with upgrades!");
 });
+
+const tryPlayMusic = () => {
+    const ambientSound = this.soundManager.sounds.get('ambient');
+    if (ambientSound && ambientSound.readyState >= 2) {
+        this.soundManager.playMusic('ambient', 0.3);
+    } else {
+        setTimeout(tryPlayMusic, 500);
+    }
+};
+setTimeout(tryPlayMusic, 5000);

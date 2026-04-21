@@ -1,11 +1,9 @@
-// Система крафта
 class CraftingSystem {
     constructor(gameState, coreGame) {
         this.gameState = gameState;
         this.coreGame = coreGame;
         this.menuOpen = false;
     }
-    
     craft(item) {
         if (!this.gameState.gameActive) return false;
         
@@ -23,7 +21,6 @@ class CraftingSystem {
         }
         return false;
     }
-    
     showMsg(msg) {
         if (this.coreGame.showNotification) this.coreGame.showNotification(msg);
         else console.log(msg);
@@ -33,8 +30,7 @@ class CraftingSystem {
         this.menuOpen = !this.menuOpen;
         this.showMsg(this.menuOpen ? "Crafting: 1-Spear(25), 2-Heal(20)" : "Crafting closed");
     }
-    
-    draw(ctx) {
+      draw(ctx) {
         if (!this.menuOpen) return;
         ctx.fillStyle = "rgba(0,0,0,0.9)";
         ctx.fillRect(250, 150, 300, 200);

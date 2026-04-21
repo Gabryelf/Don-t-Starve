@@ -4,17 +4,8 @@ class InputHandler {
         this.canvas = canvas;
         this.camera = camera;
         this.coreGame = coreGame;
-        this.musicStarted = false; // Флаг запуска музыки
         this.setupEvents();
-        console.log("🖱️ InputHandler initialized");
-    }
-    
-    // Добавьте новый метод в класс InputHandler:
-    startMusicOnFirstInteraction() {
-        if (!this.musicStarted && this.coreGame) {
-            this.coreGame.startMusic();
-            this.musicStarted = true;
-        }
+        console.log("🖱️ InputHandler initialized");    
     }
     
     setupEvents() {
@@ -44,24 +35,15 @@ class InputHandler {
             this.coreGame.gather();
         } else if (x > 120 && x < 210 && y > 545 && y < 580) {
             this.coreGame.attack();
-        } else if (x > 690 && x < 780 && y > 545 && y < 580) {
-            this.coreGame.restart();
-        } else {
-            // Движение игрока
-            window.gameState.setPlayerTarget(x, y, this.camera.x, this.camera.y);
-        }  
-        
-        if (this.coreGame.crafting && this.coreGame.crafting.menuOpen) {
-            return; // Не двигаем игрока когда открыто меню
-        }
-        
-        // Обработка цифр для крафта
-        if (this.coreGame.crafting && this.coreGame.crafting.menuOpen) {
-            if (e.key === '1' || e.key === '2') {
-                e.preventDefault();
-                this.coreGame.crafting.handleKey(e.key);
+        } else if (x > 680 && x < 770 && y > 10 && y < 45) {
+            if (this.coreGame.restart) {
+                this.coreGame.restart();
             }
         }
+         else {
+            // Движение игрока
+            window.gameState.setPlayerTarget(x, y, this.camera.x, this.camera.y);
+        }    
     }
     
     handleKeydown(e) {
@@ -73,24 +55,43 @@ class InputHandler {
             e.preventDefault();
             this.coreGame.restart();
         }
-
-        // Добавить в handleKeydown:
+         // Добавить в метод handleKeydown класса InputHandler:
+ // НОВЫЕ КОМАНДЫ
         if (e.key === 'c' || e.key === 'C') {
             e.preventDefault();
             if (this.coreGame.crafting) {
                 this.coreGame.crafting.toggleMenu();
-                this.coreGame.showNotification(this.coreGame.crafting.menuOpen ? "Crafting: 1-Spear, 2-Heal" : "Menu closed");
+            }
+        }
+    
+        if (e.key === 's' || e.key === 'S') {
+            e.preventDefault();
+            if (this.coreGame.saveSystem) {
+                this.coreGame.saveSystem.save();
+            }
+        }
+    
+        if (e.key === 'l' || e.key === 'L') {
+            e.preventDefault();
+            if (this.coreGame.saveSystem) {
+                this.coreGame.saveSystem.load();
             }
         }
 
-        if (e.key === 's' || e.key === 'S') {
+        // В методе handleKeydown добавить:
+        if (e.key === 'a' || e.key === 'A') {
             e.preventDefault();
-            if (this.coreGame.saveSystem) this.coreGame.saveSystem.save();
+            if (this.coreGame.gameState.achievements) {
+                this.coreGame.gameState.achievements.togglePanel();
+            }
         }
-
-        if (e.key === 'l' || e.key === 'L') {
-            e.preventDefault();
-            if (this.coreGame.saveSystem) this.coreGame.saveSystem.load();
+    
+    // Обработка цифр для крафта
+        if (this.coreGame.crafting && this.coreGame.crafting.menuOpen) {
+            if (e.key === '1' || e.key === '2') {
+                e.preventDefault();
+                this.coreGame.crafting.handleKey(e.key);
+            }
         }
     }
 }

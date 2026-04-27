@@ -79,7 +79,22 @@ class GameRenderer {
         const screen = this.worldToScreen(x, y);
         if (!this.isVisible(screen)) return;
         
-        const img = window.assetLoader.getImage('enemy');
+        let img = null;
+        let enemyType = type || 'wander';
+
+        switch(enemyType) {
+            case 'guard':
+                img = window.assetLoader.getImage('enemy_guard');
+                break;
+            case 'patrol':
+                img = window.assetLoader.getImage('enemy_patrol');
+                break;
+            case 'wander':
+                img = window.assetLoader.getImage('enemy_wander');
+                break;
+            default:
+                img = window.assetLoader.getImage('enemy'); // fallback
+        }
         
         if (img && img.complete) {
             this.ctx.drawImage(img, screen.x - 24, screen.y - 24, 48, 48);

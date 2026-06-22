@@ -10,6 +10,9 @@ class GameConfig {
         this.images = {
             player: 'assets/images/player.png',
             enemy: 'assets/images/enemy.png',
+            enemy_patrol: 'assets/images/enemy.png',
+            enemy_guard: 'assets/images/enemie2.png',
+            enemy_wander: 'assets/images/enemie2.png',
             tree: 'assets/images/tree.png',
             berry: 'assets/images/berry.png',
             ground: 'assets/images/ground.png',
